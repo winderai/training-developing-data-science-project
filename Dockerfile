@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:a95cb64dfe10
+FROM jupyter/base-notebook:a95cb64dfe10
 
 #Set the working directory
 WORKDIR /home/jovyan/
@@ -7,14 +7,15 @@ WORKDIR /home/jovyan/
 COPY requirements.txt /home/jovyan/requirements.txt
 RUN pip install -r /home/jovyan/requirements.txt
 
-# Add files
-COPY notebooks /home/jovyan/notebooks
-COPY data /home/jovyan/data
-
-# Allow user to write to directory
+# Allow user to write to directory and add files
 USER root
+ENV SRC_DIR /src
+RUN mkdir $SRC_DIR
+COPY . .
+COPY . /src
 RUN chown -R $NB_USER /home/jovyan \
     && chmod -R 774 /home/jovyan
+RUN chown -R $NB_USER:users $SRC_DIR && chown -R $NB_USER:users /home/$NB_USER
 USER $NB_USER
 
 # Expose the notebook port
